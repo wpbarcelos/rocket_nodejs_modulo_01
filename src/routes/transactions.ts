@@ -2,28 +2,25 @@ import { FastifyInstance } from 'fastify'
 import { knex } from '../database'
 import { z } from 'zod'
 import { randomUUID } from 'node:crypto'
+import checkSessionIdExists from '../middleware/check-session-id-exists'
 
 export async function transactionsRoutes(app: FastifyInstance) {
-  app.get('/', async (request, reply) => {
-    const sessionId = request.cookies.sessionId
-    if (!sessionId) {
-      return reply.status(401).send({ error: 'Unauthorized' })
-    }
+  app.get('/', { preHandler: [checkSessionIdExists] }, async (request) => {
+    const { sessionId } = request.cookies
+
     const transactions = await knex('transactions')
       .where('session_id', sessionId)
       .select()
     return { transactions }
   })
 
-  app.get('/:id', async (request, reply) => {
+  app.get('/:id', { preHandler: [checkSessionIdExists] }, async (request) => {
     const getTransactionParamsSchema = z.object({
       id: z.uuid(),
     })
-    const sessionId = request.cookies.sessionId
-    if (!sessionId) {
-      return reply.status(401).send({ error: 'Unauthorized' })
-    }
+
     const { id } = getTransactionParamsSchema.parse(request.params)
+    const { sessionId } = request.cookies
     const transaction = await knex('transactions')
       .where('session_id', sessionId)
       .where('id', id)
@@ -31,12 +28,18 @@ export async function transactionsRoutes(app: FastifyInstance) {
     return { transaction }
   })
 
-  app.get('/summary', async () => {
-    const summary = await knex('transactions')
-      .sum('amount', { as: 'amount' })
-      .first()
-    return { summary }
-  })
+  app.get(
+    '/summary',
+    { preHandler: [checkSessionIdExists] },
+    async (request) => {
+      const { sessionId } = request.cookies
+      const summary = await knex('transactions')
+        .sum('amount', { as: 'amount' })
+        .where('session_id', sessionId)
+        .first()
+      return { summary }
+    },
+  )
 
   app.post('/', async (request, reply) => {
     const createTransactionBodySchema = z.object({
@@ -62,6 +65,7 @@ export async function transactionsRoutes(app: FastifyInstance) {
       id: randomUUID(),
       title,
       amount: type === 'credit' ? amount : amount * -1,
+      session_id: sessionId,
     })
 
     return reply.status(201).send()

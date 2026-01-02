@@ -8,7 +8,9 @@
     "lint": "eslint src --ext .ts --fix",
     "knex": "tsx ./node_modules/knex/bin/cli.js --knexfile ./knexfile.ts",
     "migrate": "npm run knex -- migrate:latest",
-    "migrate:make": "tsx ./node_modules/knex/bin/cli.js --knexfile ./knexfile.ts migrate:make"
+    "migrate:make": "tsx ./node_modules/knex/bin/cli.js --knexfile ./knexfile.ts migrate:make",
+    "test": "vitest",
+    "build": "tsup src --out-dir build"
   },
   "keywords": [],
   "author": "",
@@ -17,9 +19,13 @@
     "@rocketseat/eslint-config": "^2.2.2",
     "@tsconfig/node-lts": "latest",
     "@types/node": "^24.10.1",
+    "@types/supertest": "^6.0.3",
     "eslint": "^8.57.1",
+    "supertest": "^7.1.4",
+    "tsup": "^8.5.1",
     "tsx": "^4.20.6",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",

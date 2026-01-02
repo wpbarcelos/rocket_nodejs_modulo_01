@@ -1,0 +1,20 @@
+### get all transactions
+GET http://localhost:3333/transactions
+
+
+
+###
+## CREATE  a debit
+POST http://localhost:3333/transactions
+Content-Type: application/json
+
+{
+    "title":"notebook acer 2025",
+    "amount": 3000,
+    "type":"debit"
+}
+
+
+### get all transactions
+GET http://localhost:3333/transactions/summary
+    
