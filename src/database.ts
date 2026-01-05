@@ -15,5 +15,5 @@ export const config: Knex.Config = {
     extension: 'ts',
   },
 }
-console.log(config)
+
 export const knex = setupKnex(config)
